@@ -22,7 +22,7 @@ namespace Shortify.Client.Controllers
 
         public IActionResult LoginSubmission(LoginVM loginVM)
         {
-            return View();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

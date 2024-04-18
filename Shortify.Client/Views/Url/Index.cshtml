@@ -33,8 +33,12 @@
                     <td>@url.NrOfClicks</td>
                     <td>@url.UserId</td>
                     <td>
-                        <a class="btn btn-outline-danger" asp-controller="Url" asp-action="Remove">
+                        <a class="btn btn-outline-danger" asp-controller="Url" asp-action="Remove" asp-route-id="@url.Id">
                             Remove
+                        </a>
+
+                        <a class="btn btn-outline-danger" asp-controller="Url" asp-action="Remove" asp-route-userId="@url.UserId" asp-route-linkId="@url.Id">
+                            Remove 2 params
                         </a>
                     </td>
                 </tr>

@@ -17,11 +17,24 @@ namespace Shortify.Client.Controllers
 
         public IActionResult Register()
         {
-            return View();
+            return View(new RegisterVM());
         }
 
         public IActionResult LoginSubmission(LoginVM loginVM)
         {
+            if (!ModelState.IsValid)
+            {
+                return View("Login", loginVM);
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Register(RegisterVM registerVM)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Register", registerVM);
+            }
             return RedirectToAction("Index", "Home");
         }
     }

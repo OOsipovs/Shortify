@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Shortify.Client.Data.Models;
 using Shortify.Client.Data.ViewModels;
 
 namespace Shortify.Client.Controllers

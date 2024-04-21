@@ -10,12 +10,12 @@ namespace Shortify.Data.Models
     {
         public User()
         {
-            Url = new List<Url>();
+            Urls = new List<Url>();
         }
 
         public int Id { get; set; }
         public string Email { get; set; }
         public string? FullName { get; set; }
-        public List<Url> Url { get; set; }
+        public List<Url> Urls { get; set; }
     }
 }

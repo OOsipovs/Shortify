@@ -4,6 +4,15 @@
     ViewData["Title"] = "Welcome";
 }
 
+@if(TempData != null && TempData["Message"] != null)
+{
+    <div class="container">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Succcess!</strong> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
 
 <section class="landing py-5">
     <div class="container">
@@ -26,7 +35,7 @@
         <div class="url-shorten-feature">
             <form class="url-shorten-form" id="url-shorten-form" asp-controller="Home" asp-action="ShortenUrl">
                 <div>
-                    <input asp-for="Url" type="text" class="url-input" name="urlToShorten" placeholder="Shorten a link here..." autocomplete="off" />
+                    <input asp-for="Url" type="text" class="url-input" name="Url" placeholder="Shorten a link here..." autocomplete="off" />
                     <span asp-validation-for="Url" class="text-danger"></span>
                 </div>
                 <button type="submit" class="btn btn-lg" style="">Shorten It!</button>

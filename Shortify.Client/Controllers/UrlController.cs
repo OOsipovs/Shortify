@@ -1,42 +1,37 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Shortify.Client.Data.ViewModels;
+using Shortify.Data;
 
 namespace Shortify.Client.Controllers
 {
     public class UrlController : Controller
     {
+        private readonly AppDbContext dbContext;
+
+        public UrlController(AppDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
+
         public IActionResult Index()
         {
-            //FAke Db Data
-            var allUrls = new List<GetUrlVM>()
+            var allUrlsFromDb = this.dbContext.Urls.Include(n => n.User).Select(u => new GetUrlVM
             {
-                new GetUrlVM
+                Id = u.Id,
+                OriginalLink = u.OriginalLink,
+                ShortLink = u.ShortLink,
+                NrOfClicks = u.NrOfClicks,
+                UserId = u.UserId,
+                User = u.User != null ? new GetUserVM
                 {
-                    Id = 1,
-                    OriginalLink = "https://link1.com",
-                    ShortLink = "sh1",
-                    NrOfClicks = 1,
-                    UserId = 1,
-                },
-                new GetUrlVM
-                {
-                    Id = 2,
-                    OriginalLink = "https://link2.com",
-                    ShortLink = "sh2",
-                    NrOfClicks = 2,
-                    UserId = 2,
-                },
-                new GetUrlVM
-                {
-                    Id = 3,
-                    OriginalLink = "https://link3.com",
-                    ShortLink = "sh3",
-                    NrOfClicks = 3,
-                    UserId = 3,
-                },
-            };
+                    Id = u.Id,
+                    FullName = u.User.FullName
+                } : new GetUserVM()
+            }).ToList();
 
-            return View(allUrls);
+
+            return View(allUrlsFromDb);
         }
 
         public IActionResult Create()
@@ -46,12 +41,11 @@ namespace Shortify.Client.Controllers
 
         public IActionResult Remove(int id)
         {
-            return View();
+            var url = dbContext.Urls.FirstOrDefault(n => n.Id == id);
+            dbContext.Urls.Remove(url);
+            dbContext.SaveChanges();
+            return RedirectToAction("Index");
         }
 
-        public IActionResult Remove(int userId, int linkId)
-        {
-            return View();
-        }
     }
 }

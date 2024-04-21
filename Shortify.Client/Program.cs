@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Shortify.Client.Data;
 using Shortify.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,5 +36,7 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+DbInitializer.SeedDefaultData(app);
 
 app.Run();

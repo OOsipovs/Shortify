@@ -1,37 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shortify.Client.Data.ViewModels;
 using Shortify.Data;
+using Shortify.Data.Services;
 
 namespace Shortify.Client.Controllers
 {
     public class UrlController : Controller
     {
-        private readonly AppDbContext dbContext;
+        private readonly IUrlsService urlsService;
+        private readonly IMapper mapper;
 
-        public UrlController(AppDbContext dbContext)
+        public UrlController(IUrlsService urlsService, IMapper mapper)
         {
-            this.dbContext = dbContext;
+            this.urlsService = urlsService;
+            this.mapper = mapper;
         }
 
         public IActionResult Index()
         {
-            var allUrlsFromDb = this.dbContext.Urls.Include(n => n.User).Select(u => new GetUrlVM
-            {
-                Id = u.Id,
-                OriginalLink = u.OriginalLink,
-                ShortLink = u.ShortLink,
-                NrOfClicks = u.NrOfClicks,
-                UserId = u.UserId,
-                User = u.User != null ? new GetUserVM
-                {
-                    Id = u.Id,
-                    FullName = u.User.FullName
-                } : new GetUserVM()
-            }).ToList();
+            var allUrlsFromDb = this.urlsService.GetUrls();
+            var mappedAllUrls = mapper.Map<List<GetUrlVM>>(allUrlsFromDb);
 
-
-            return View(allUrlsFromDb);
+            return View(mappedAllUrls);
         }
 
         public IActionResult Create()
@@ -41,9 +33,7 @@ namespace Shortify.Client.Controllers
 
         public IActionResult Remove(int id)
         {
-            var url = dbContext.Urls.FirstOrDefault(n => n.Id == id);
-            dbContext.Urls.Remove(url);
-            dbContext.SaveChanges();
+            urlsService.Delete(id);
             return RedirectToAction("Index");
         }
 

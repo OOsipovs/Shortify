@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Shortify.Client.Data;
 using Shortify.Data;
+using Shortify.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddScoped<IUrlsService, UrlsService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

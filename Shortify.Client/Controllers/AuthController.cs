@@ -2,19 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using Shortify.Client.Data.ViewModels;
 using Shortify.Data;
+using Shortify.Data.Services;
 
 namespace Shortify.Client.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly AppDbContext appDbContext;
-        public AuthController(AppDbContext dbContext)
+        private readonly IUsersService  usersService;
+        public AuthController(IUsersService usersService)
         {
-            appDbContext = dbContext;
+            this.usersService = usersService;
         }
         public IActionResult Users()
         {
-            var users = appDbContext.Users.Include(u => u.Urls).ToList();
+            var users = usersService.GetUsers();
 
             return View(users);
         }

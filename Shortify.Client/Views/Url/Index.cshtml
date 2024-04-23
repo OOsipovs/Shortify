@@ -31,7 +31,7 @@
                     <td>@url.OriginalLink</td>
                     <td>@url.ShortLink</td>
                     <td>@url.NrOfClicks</td>
-                    <td>@(url.User.FullName)</td>
+                    <td>@(url.User?.FullName)</td>
                     <td>
                         <a class="btn btn-outline-danger" asp-controller="Url" asp-action="Remove" asp-route-id="@url.Id">
                             Remove

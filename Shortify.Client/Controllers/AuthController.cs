@@ -13,24 +13,25 @@ namespace Shortify.Client.Controllers
         {
             this.usersService = usersService;
         }
-        public IActionResult Users()
+
+        public async Task<IActionResult> Users()
         {
-            var users = usersService.GetUsers();
+            var users = await usersService.GetUsersAsync();
 
             return View(users);
         }
 
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
             return View(new LoginVM());
         }
 
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
             return View(new RegisterVM());
         }
 
-        public IActionResult LoginSubmission(LoginVM loginVM)
+        public async Task<IActionResult> LoginSubmission(LoginVM loginVM)
         {
             if (!ModelState.IsValid)
             {
@@ -39,7 +40,7 @@ namespace Shortify.Client.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult Register(RegisterVM registerVM)
+        public async Task<IActionResult> Register(RegisterVM registerVM)
         {
             if (!ModelState.IsValid)
             {

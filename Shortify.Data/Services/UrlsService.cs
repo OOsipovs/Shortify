@@ -17,46 +17,45 @@ namespace Shortify.Data.Services
             this.dbContext = dbContext;
         }
 
-        public Url Add(Url url)
+        public async Task<Url> AddAsync(Url url)
         {
-            dbContext.Urls.Add(url);
-            dbContext.SaveChanges();
+            await dbContext.Urls.AddAsync(url);
+            await dbContext.SaveChangesAsync();
             return url;
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var dbUrl = dbContext.Urls.FirstOrDefault(u => u.Id == id);
+            var dbUrl = await dbContext.Urls.FirstOrDefaultAsync(u => u.Id == id);
             if (dbUrl != null)
             {
                 dbContext.Urls.Remove(dbUrl);
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
         }
 
-        public Url GetById(int id)
+        public async Task<Url> GetByIdAsync(int id)
         {
-            var url = dbContext.Urls.FirstOrDefault(u => u.Id == id);
+            var url = await dbContext.Urls.FirstOrDefaultAsync(u => u.Id == id);
             return url;
         }
 
-        public IEnumerable<Url> GetUrls()
+        public async Task<IEnumerable<Url>> GetUrlsAsync()
         {
-            var allUrls = dbContext.Urls.Include(u => u.User).ToList();
+            var allUrls = await dbContext.Urls.Include(u => u.User).ToListAsync();
             return allUrls;
         }
 
-        public Url Update(int id, Url url)
+        public async Task<Url> UpdateAsync(int id, Url url)
         {
-            var dbUrl = dbContext.Urls.FirstOrDefault(u => u.Id == id);
+            var dbUrl = await dbContext.Urls.FirstOrDefaultAsync(u => u.Id == id);
             if(dbUrl != null)
             {
                 dbUrl.OriginalLink = url.OriginalLink;
                 dbUrl.ShortLink = url.ShortLink;
                 dbUrl.DateUpdated = DateTime.UtcNow;
 
-                dbContext.Urls.Update(dbUrl);
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
 
             return dbUrl;

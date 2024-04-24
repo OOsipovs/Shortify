@@ -17,45 +17,45 @@ namespace Shortify.Data.Services
             this.dbContext = dbContext;
         }
 
-        public User Add(User user)
+        public async Task<User> AddAsync(User user)
         {
-            dbContext.Users.Add(user);
-            dbContext.SaveChanges();
+            await dbContext.Users.AddAsync(user);
+            await dbContext.SaveChangesAsync();
             return user;
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var dbUser = dbContext.Users.FirstOrDefault(u => u.Id == id);
+            var dbUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             if(dbUser != null)
             {
                 dbContext.Users.Remove(dbUser);
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
         }
 
-        public User GetById(int id)
+        public async Task<User> GetByIdAsync(int id)
         {
-            var user = dbContext.Users.FirstOrDefault(u => u.Id == id);
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;
         }
 
-        public IEnumerable<User> GetUsers()
+        public async Task<IEnumerable<User>> GetUsersAsync()
         {
-            var allUsers = dbContext.Users.Include(u => u.Urls).ToList();
+            var allUsers = await dbContext.Users.Include(u => u.Urls).ToListAsync();
             return allUsers;
         }
 
-        public User Update(int id, User user)
+        public async Task<User> UpdateAsync(int id, User user)
         {
-            var dbUser = dbContext.Users.FirstOrDefault(u => u.Id == id);
+            var dbUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             
             if(dbUser != null)
             {
                 dbUser.Email = user.Email;
                 dbUser.FullName = user.FullName;
-                dbContext.Update(dbUser);
-                dbContext.SaveChanges();
+                
+                await dbContext.SaveChangesAsync();
             }
 
             return dbUser;

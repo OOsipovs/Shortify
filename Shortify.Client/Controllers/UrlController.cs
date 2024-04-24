@@ -18,22 +18,22 @@ namespace Shortify.Client.Controllers
             this.mapper = mapper;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var allUrlsFromDb = this.urlsService.GetUrls();
+            var allUrlsFromDb = await this.urlsService.GetUrlsAsync();
             var mappedAllUrls = mapper.Map<List<GetUrlVM>>(allUrlsFromDb);
 
             return View(mappedAllUrls);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             return RedirectToAction("Index");
         }
 
-        public IActionResult Remove(int id)
+        public async Task<IActionResult> Remove(int id)
         {
-            urlsService.Delete(id);
+            await urlsService.DeleteAsync(id);
             return RedirectToAction("Index");
         }
 

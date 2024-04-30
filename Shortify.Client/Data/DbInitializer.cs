@@ -14,7 +14,7 @@ namespace Shortify.Client.Data
                 if (dbContext != null && !dbContext.Users.Any())
                 {
                     dbContext.Users.Add(
-                        new User()
+                        new AppUser()
                         {
                             FullName = "Olegs Osipovs",
                             Email = "olegs@osipovs.com"

@@ -9,10 +9,7 @@ namespace Shortify.Data.Services
 {
     public interface IUsersService
     {
-        Task<IEnumerable<User>> GetUsersAsync();
-        Task<User> AddAsync(User url);
-        Task<User> GetByIdAsync(int id);
-        Task<User> UpdateAsync(int id, User url);
-        Task DeleteAsync(int id);
+        Task<IEnumerable<AppUser>> GetUsersAsync();
+       
     }
 }

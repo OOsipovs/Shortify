@@ -17,48 +17,11 @@ namespace Shortify.Data.Services
             this.dbContext = dbContext;
         }
 
-        public async Task<User> AddAsync(User user)
-        {
-            await dbContext.Users.AddAsync(user);
-            await dbContext.SaveChangesAsync();
-            return user;
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var dbUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if(dbUser != null)
-            {
-                dbContext.Users.Remove(dbUser);
-                await dbContext.SaveChangesAsync();
-            }
-        }
-
-        public async Task<User> GetByIdAsync(int id)
-        {
-            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
-            return user;
-        }
-
-        public async Task<IEnumerable<User>> GetUsersAsync()
+        public async Task<IEnumerable<AppUser>> GetUsersAsync()
         {
             var allUsers = await dbContext.Users.Include(u => u.Urls).ToListAsync();
             return allUsers;
         }
 
-        public async Task<User> UpdateAsync(int id, User user)
-        {
-            var dbUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
-            
-            if(dbUser != null)
-            {
-                dbUser.Email = user.Email;
-                dbUser.FullName = user.FullName;
-                
-                await dbContext.SaveChangesAsync();
-            }
-
-            return dbUser;
-        }
     }
 }

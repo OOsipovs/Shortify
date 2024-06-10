@@ -4,6 +4,7 @@ using Shortify.Client.Data.ViewModels;
 using Shortify.Data;
 using Shortify.Data.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Shortify.Client.Controllers
 {
@@ -31,12 +32,14 @@ namespace Shortify.Client.Controllers
                 return View("Index", postUrlVm);
             }
 
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var newUrl = new Url()
             {
                 OriginalLink = postUrlVm.Url,
                 ShortLink = GenerateShortUrl(5),
                 NrOfClicks = 0,
-                UserId = null,
+                UserId = loggedInUserId,
                 DateCreated = DateTime.UtcNow,
             };
 

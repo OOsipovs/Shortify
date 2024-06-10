@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shortify.Client.Data.ViewModels;
+using Shortify.Client.Helpers.Roles;
 using Shortify.Data;
 using Shortify.Data.Services;
+using System.Security.Claims;
 
 namespace Shortify.Client.Controllers
 {
@@ -20,7 +22,10 @@ namespace Shortify.Client.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var allUrlsFromDb = await this.urlsService.GetUrlsAsync();
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole(Role.Admin);
+
+            var allUrlsFromDb = await this.urlsService.GetUrlsAsync(loggedInUserId, isAdmin);
             var mappedAllUrls = mapper.Map<List<GetUrlVM>>(allUrlsFromDb);
 
             return View(mappedAllUrls);

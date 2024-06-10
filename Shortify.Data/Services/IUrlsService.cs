@@ -9,7 +9,7 @@ namespace Shortify.Data.Services
 {
     public interface IUrlsService
     {
-        Task<IEnumerable<Url>> GetUrlsAsync();
+        Task<IEnumerable<Url>> GetUrlsAsync(string userId, bool isAdmin);
         Task<Url> AddAsync(Url user);
         Task<Url> GetByIdAsync(int id);
         Task<Url> UpdateAsync(int id, Url url);

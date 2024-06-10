@@ -40,10 +40,19 @@ namespace Shortify.Data.Services
             return url;
         }
 
-        public async Task<IEnumerable<Url>> GetUrlsAsync()
+        public async Task<IEnumerable<Url>> GetUrlsAsync(string userId, bool isAdmin)
         {
-            var allUrls = await dbContext.Urls.Include(u => u.User).ToListAsync();
-            return allUrls;
+            var allUrlsQuery = dbContext.Urls.Include(u => u.User);
+
+            if (isAdmin)
+            {
+                return await allUrlsQuery.ToListAsync();
+            }
+            else
+            {
+                return await allUrlsQuery.Where(n => n.UserId == userId).ToListAsync();
+            }
+
         }
 
         public async Task<Url> UpdateAsync(int id, Url url)

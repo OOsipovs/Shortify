@@ -41,6 +41,8 @@ builder.Services.Configure<IdentityOptions>(options =>
 
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+
+    options.SignIn.RequireConfirmedEmail = true;
 });
 
 builder.Services.AddScoped<IUrlsService, UrlsService>();

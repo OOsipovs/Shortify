@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using Shortify.Client.Data.ViewModels;
 using Shortify.Client.Helpers.Roles;
 using Shortify.Data;
@@ -14,12 +16,15 @@ namespace Shortify.Client.Controllers
         private readonly IUsersService  usersService;
         private readonly SignInManager<AppUser> signInManager;
         private readonly UserManager<AppUser> userManager;
+        private readonly IConfiguration configuration;
 
-        public AuthController(IUsersService usersService, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager)
+        public AuthController(IUsersService usersService, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, IConfiguration configuration)
         {
             this.usersService = usersService;
             this.signInManager = signInManager;
-            this.userManager = userManager; 
+            this.userManager = userManager;
+            this.configuration = configuration;
+
         }
 
         public async Task<IActionResult> Users()
@@ -58,6 +63,10 @@ namespace Shortify.Client.Controllers
                     {
                         return RedirectToAction("Index", "Home");
                     } 
+                    else if (userLoggedIn.IsNotAllowed)
+                    {
+                        return RedirectToAction("EmailConfirmation");
+                    }
                     else
                     {
                         ModelState.AddModelError("", "Ivalid login attempt.");
@@ -126,6 +135,60 @@ namespace Shortify.Client.Controllers
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> EmailConfirmation()
+        {
+            var confirmEmail = new ConfirmEmailLoginVM();
+            return View(confirmEmail);
+        }
+
+        public async Task<IActionResult> SendEmailConfirmation(ConfirmEmailLoginVM confirmEmailLogin)
+        {
+            var user = await userManager.FindByEmailAsync(confirmEmailLogin.Email);
+            
+            if (user != null)
+            {
+                var userToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                var userConfirmationLink = Url.Action("EmailConfirmationVerified", "Auth", new
+                {
+                    userId = user.Id,
+                    userConfirmationToken = userToken
+                }, Request.Scheme);
+
+                //Send email using sendgrid
+                var apiKey = configuration["SendGrid:ShortlyKey"];
+                var sendGridClient = new SendGridClient(apiKey);
+
+                var fromEmailAddress = new EmailAddress(configuration["SendGrid:FromAddress"], "Shortify Client App");
+                var emailSubject = "[Shortify] Verify your account";
+                var toEmailAddress = new EmailAddress(confirmEmailLogin.Email, "Shortify Client App");
+
+                var emailContentTxt = "Hello from Shortify app, please click this link to verify your acount " + userConfirmationLink;
+                var emailContentHtml = $"Hello from Shortify app, please click this link to verify your acount: <a href=\"{userConfirmationLink}\"> Verify your account </a>" ;
+
+                var emailRequest = MailHelper.CreateSingleEmail(fromEmailAddress, toEmailAddress, emailSubject, emailContentTxt, emailContentHtml);
+                var emailResponse = new Response(System.Net.HttpStatusCode.NotFound, null, null);//sendGridClient.SendEmailAsync(emailRequest);
+                TempData["EmailConfirmation"] = "Thank you! Please, check you emailto verify your account";
+                return RedirectToAction("Index", "Home");
+            }
+
+            ModelState.AddModelError("", $"Email address {confirmEmailLogin.Email} does not exist");
+            return View("EmailConfirmation", confirmEmailLogin);
+
+        }
+
+        public async Task<IActionResult> EmailConfirmationVerified(string userId, string userConfirmationToken)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var result = await userManager.ConfirmEmailAsync(user,userConfirmationToken);
+            TempData["EmailConfirmationVerified"] = "Thank you! Your account has been confirmed";
             return RedirectToAction("Index", "Home");
         }
     }

@@ -8,6 +8,8 @@ using Shortify.Client.Helpers.Roles;
 using Shortify.Data;
 using Shortify.Data.Models;
 using Shortify.Data.Services;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace Shortify.Client.Controllers
 {
@@ -66,6 +68,10 @@ namespace Shortify.Client.Controllers
                     else if (userLoggedIn.IsNotAllowed)
                     {
                         return RedirectToAction("EmailConfirmation");
+                    }
+                    else if (userLoggedIn.RequiresTwoFactor)
+                    {
+                        return RedirectToAction("TwoFactor", new { loggedInUserId = user.Id}); 
                     }
                     else
                     {
@@ -190,6 +196,57 @@ namespace Shortify.Client.Controllers
             var result = await userManager.ConfirmEmailAsync(user,userConfirmationToken);
             TempData["EmailConfirmationVerified"] = "Thank you! Your account has been confirmed";
             return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> TwoFactor(string loggedInUserId)
+        {
+            var user = await userManager.FindByIdAsync(loggedInUserId);
+            if (user != null)
+            {
+                var userToken = await userManager.GenerateTwoFactorTokenAsync(user, "Phone");
+                string twilioPhoneNumber = configuration["Twilio:PhoneNumber"];
+                string twilioSID = configuration["Twilio:SID"];
+                string twilioToken = configuration["Twilio:Token"];
+
+                TwilioClient.Init(twilioSID, twilioToken);
+
+                var msg = MessageResource.Create(
+                    body: $"This is your verification code: {userToken}",
+                    from: new Twilio.Types.PhoneNumber(twilioPhoneNumber),
+                    to: new Twilio.Types.PhoneNumber(user.PhoneNumber));
+
+
+                var confirm2FALoginVM = new Confirm2FALoginVM()
+                {
+                    UserId = loggedInUserId
+                };
+
+                return View(confirm2FALoginVM); 
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> TwoFactorVerified(Confirm2FALoginVM confirm2FALoginVM)
+        {
+            var user = await userManager.FindByIdAsync(confirm2FALoginVM.UserId);
+            if(user != null)
+            {
+                var tokenVerification = await userManager.VerifyTwoFactorTokenAsync(user, "Phone", confirm2FALoginVM.UserConfirmationCode);
+
+                if (tokenVerification)
+                {
+                    var tokenSignIn = await signInManager.TwoFactorSignInAsync("Phone", confirm2FALoginVM.UserConfirmationCode, false, false);
+                    if (tokenSignIn.Succeeded)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+            }
+
+            ModelState.AddModelError("", "Confirmation code is not corrrect");
+
+            return View(confirm2FALoginVM);
         }
     }
 }

@@ -38,7 +38,12 @@ namespace Shortify.Client.Controllers
 
         public async Task<IActionResult> Login()
         {
-            return View(new LoginVM());
+            var loginVm = new LoginVM()
+            {
+                Schemes = await signInManager.GetExternalAuthenticationSchemesAsync(),
+            };
+
+            return View(loginVm);
         }
 
         public async Task<IActionResult> Register()

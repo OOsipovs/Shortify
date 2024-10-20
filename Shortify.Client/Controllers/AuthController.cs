@@ -253,5 +253,10 @@ namespace Shortify.Client.Controllers
 
             return View(confirm2FALoginVM);
         }
+
+        public IActionResult ExternalLogin(string provider, string returnUrl = "")
+        {
+            return View();
+        }
     }
 }
